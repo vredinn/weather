@@ -21,7 +21,7 @@
       </div>
       <div class="wheather__second">
         <p class="weather__descr">            
-          Ощущается как: {{ weather_data.main.feels_like }}
+          Ощущается как: {{ weather_data.main.feels_like }} C°
         </p>
         <p class="weather__descr">            
             Влажность: {{ weather_data.main.humidity }}%
@@ -30,22 +30,31 @@
             Давление: {{ weather_data.main.pressure }} мм рт.ст.
         </p>
         <p class="weather__descr">            
-            Ветер: {{ weather_data.wind.speed }}м/с
+            Ветер: {{ weather_data.wind.speed }} м/с
         </p>
+        <div class="weather__descr">          
+          Направление:  {{ weather_data.wind.deg }}°
+        </div>
       </div>
-    </div>
+    </div>    
   </div>
   
+  <div v-if="forecast_data">
+    <h2>Прогноз на 5 дней</h2>
+    <forecastBlock :forecast="forecast_data"></forecastBlock>
+  </div>
 </template>
 
 <script>
 
+import forecastBlock from './components/forecastBlock.vue';
 
 export default {
   name: 'App',
   data(){
     return{
       weather_data : null,
+      forecast_data : null,
       selectedCity : null,
       loading : null,
       options : [
@@ -60,18 +69,26 @@ export default {
   methods: {
     updateCity() {
       this.weather_data = null;
+      this.forecast_data = null;
       fetch("https://api.openweathermap.org/data/2.5/weather?id=" + this.selectedCity + "&appid=ff97a551298bf965a9084ec70876aa54&units=metric&lang=ru")
         .then(resp=>resp.json())
         .then(json=>{
         this.weather_data=json;
       });
-    }
+      fetch("https://api.openweathermap.org/data/2.5/forecast?id=" + this.selectedCity + "&appid=ff97a551298bf965a9084ec70876aa54&units=metric&lang=ru")
+        .then(resp=>resp.json())
+        .then(json=>{
+        this.forecast_data=json;
+      });
+    },
   },
   mounted(){
     this.selectedCity = '520494',
     this.updateCity();
   },
-  components: {}
+  components: {
+    forecastBlock
+  }
 }
 </script>
 
